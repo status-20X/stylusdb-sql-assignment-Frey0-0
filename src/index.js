@@ -19,7 +19,7 @@ async function executeSELECTQuery(query) {
     });
   } catch (error) {
     console.error(error.message);
-    return []; // or any other appropriate action
+    return []; 
   }
 }
 
@@ -30,10 +30,22 @@ function applyWhereClauses(data, whereClauses) {
 
   return data.filter((row) => {
     return whereClauses.every(({ field, operator, value }) => {
-      if (operator === "=") {
-        return row[field] === value;
+      switch (operator) {
+        case "=":
+          return row[field] === value;
+        case "!=":
+          return row[field] !== value;
+        case ">":
+          return row[field] > value;
+        case "<":
+          return row[field] < value;
+        case ">=":
+          return row[field] >= value;
+        case "<=":
+          return row[field] <= value;
+        default:
+          return false;
       }
-      return false;
     });
   });
 }
