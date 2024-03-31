@@ -203,7 +203,40 @@ function parseJoinClause(query) {
   };
 }
 
+function parseInsertQuery(query) {
+  const cleanColumnName = (name) => name.trim().replace(/^"?(.+?)"?$/g, "$1");
+  const cleanValue = (value) => value.trim().replace(/^['"](.*)['"]$/g, "$1");
+  const cleanReturningColumn = (name) =>
+    name
+      .trim()
+      .replace(/\w+\./g, "")
+      .replace(/^"?(.+?)"?$/g, "$1");
+
+  const match = query.match(
+    /INSERT INTO "?(\w+)"?\s\(([^)]+)\)\sVALUES\s\(([^)]+)\)(?:\sRETURNING\s(.+))?/i
+  );
+  if (!match) {
+    throw new Error("Invalid INSERT INTO syntax.");
+  }
+
+  const [, table, columns, values, returningPart] = match;
+  const parsedColumns = columns.split(",").map(cleanColumnName);
+  const parsedValues = values.split(",").map(cleanValue);
+  const returningColumns = returningPart
+    ? returningPart.split(",").map(cleanReturningColumn)
+    : [];
+
+  return {
+    type: "INSERT",
+    table: cleanColumnName(table),
+    columns: parsedColumns,
+    values: parsedValues,
+    returningColumns,
+  };
+}
+
 module.exports = {
   parseQuery,
   parseJoinClause,
+  parseInsertQuery
 };
