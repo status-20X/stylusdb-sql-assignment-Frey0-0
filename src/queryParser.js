@@ -177,5 +177,6 @@ function parseJoinClause(query) {
 }
 
 module.exports = {
-  parseQuery
+  parseQuery,
+  parseJoinClause
 }

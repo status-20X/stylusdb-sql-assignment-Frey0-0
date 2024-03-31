@@ -13,7 +13,6 @@ test('Read CSV File', async () => {
 test('Parse SQL Query', () => {
     const query = 'SELECT id, name FROM sample';
     const parsed = parseQuery(query);
-    console.log(parsed);
     expect(parsed).toHaveProperty('fields', ['id', 'name']);
     expect(parsed).toHaveProperty('table', 'sample');
     expect(parsed).toHaveProperty('whereClauses', []);
