@@ -10,41 +10,18 @@ function parseQuery(query) {
   selectPart = whereSplit[0]; // Everything before WHERE clause
   wherePart = whereSplit[1]; // Everything after WHERE clause (may be undefined)
 
-  // Split the remaining query at the JOIN clause if it exists
-  const joinSplit = selectPart.split(/\s+INNER JOIN\s+/i);
-  selectPart = joinSplit[0]; // Everything before JOIN clause
-  joinPart = joinSplit[1]; // Everything after JOIN clause (may be undefined)
+  // Parse the JOIN part if it exists
+  const { joinType, joinTable, joinCondition } = parseJoinClause(selectPart);
+  selectPart = joinType ? selectPart.replace(joinType, "") : selectPart;
 
   // Parse the SELECT part
-  const selectRegex = /^SELECT\s+(.+?)\s+FROM\s+(.+)$/i;
+  const selectRegex = /^SELECT\s+(.+?)\s+FROM\s+(\w+)\s*/i;
   const selectMatch = selectPart.match(selectRegex);
   if (!selectMatch) {
     throw new Error("Invalid SELECT format");
   }
 
   const [, fields, table] = selectMatch;
-
-  // Parse the JOIN part if it exists
-  let joinTable = null,
-    joinCondition = null;
-  if (joinPart) {
-    const joinRegex = /^(.+?)\s+ON\s+(.+)$/i;
-    const joinMatch = joinPart.match(joinRegex);
-    if (!joinMatch) {
-      throw new Error("Invalid JOIN format");
-    }
-
-    joinTable = joinMatch[1].trim();
-    const joinConditionParts = joinMatch[2].split(/\s*=\s*/);
-    if (joinConditionParts.length !== 2) {
-      throw new Error("Invalid JOIN condition format");
-    }
-
-    joinCondition = {
-      left: joinConditionParts[0].trim(),
-      right: joinConditionParts[1].trim(),
-    };
-  }
 
   // Parse the WHERE part if it exists
   let whereClauses = [];
@@ -56,8 +33,32 @@ function parseQuery(query) {
     fields: fields.split(",").map((field) => field.trim()),
     table: table.trim(),
     whereClauses,
+    joinType,
     joinTable,
     joinCondition,
+  };
+}
+
+function parseJoinClause(query) {
+  const joinRegex =
+    /\s(INNER|LEFT|RIGHT) JOIN\s(.+?)\sON\s([\w.]+)\s*=\s*([\w.]+)/i;
+  const joinMatch = query.match(joinRegex);
+
+  if (joinMatch) {
+    return {
+      joinType: joinMatch[1].trim(),
+      joinTable: joinMatch[2].trim(),
+      joinCondition: {
+        left: joinMatch[3].trim(),
+        right: joinMatch[4].trim(),
+      },
+    };
+  }
+
+  return {
+    joinType: null,
+    joinTable: null,
+    joinCondition: null,
   };
 }
 
@@ -73,4 +74,4 @@ function parseWhereClause(whereString) {
   });
 }
 
-module.exports = parseQuery;
+module.exports = { parseQuery, parseJoinClause };
