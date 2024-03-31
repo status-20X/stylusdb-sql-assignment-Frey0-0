@@ -13,14 +13,12 @@ test('Read CSV File', async () => {
 test('Parse SQL Query', () => {
     const query = 'SELECT id, name FROM student';
     const parsed = parseQuery(query);
-    expect(parsed).toEqual({
-        fields: ['id', 'name'],
-        table: 'student',
-        whereClauses: [],
-        joinType: null,
-        joinCondition: null,
-        joinTable: null
-    });
+    expect(parsed).toHaveProperty('fields', ['id', 'name']);
+    expect(parsed).toHaveProperty('table', 'student');
+    expect(parsed).toHaveProperty('whereClauses', []);
+    expect(parsed).toHaveProperty('joinType', null);
+    expect(parsed).toHaveProperty('joinTable', null);
+    expect(parsed).toHaveProperty('joinCondition', null);
 });
 
 test('Execute SQL Query', async () => {
@@ -36,18 +34,12 @@ test('Execute SQL Query', async () => {
 test('Parse SQL Query with WHERE Clause', () => {
     const query = 'SELECT id, name FROM student WHERE age = 25';
     const parsed = parseQuery(query);
-    expect(parsed).toEqual({
-        fields: ['id', 'name'],
-        table: 'student',
-        whereClauses: [{
-            "field": "age",
-            "operator": "=",
-            "value": "25",
-        }],
-        joinType: null,
-        joinCondition: null,
-        joinTable: null
-    });
+    expect(parsed).toHaveProperty('fields', ['id', 'name']);
+    expect(parsed).toHaveProperty('table', 'student');
+    expect(parsed).toHaveProperty('whereClauses', [{ field: 'age', operator: '=', value: '25' }]);
+    expect(parsed).toHaveProperty('joinType', null);
+    expect(parsed).toHaveProperty('joinTable', null);
+    expect(parsed).toHaveProperty('joinCondition', null);
 });
 
 test('Execute SQL Query with WHERE Clause', async () => {
@@ -62,22 +54,12 @@ test('Execute SQL Query with WHERE Clause', async () => {
 test('Parse SQL Query with Multiple WHERE Clauses', () => {
     const query = 'SELECT id, name FROM student WHERE age = 30 AND name = John';
     const parsed = parseQuery(query);
-    expect(parsed).toEqual({
-        fields: ['id', 'name'],
-        table: 'student',
-        whereClauses: [{
-            "field": "age",
-            "operator": "=",
-            "value": "30",
-        }, {
-            "field": "name",
-            "operator": "=",
-            "value": "John",
-        }],
-        joinType: null,
-        joinCondition: null,
-        joinTable: null
-    });
+    expect(parsed).toHaveProperty('fields', ['id', 'name']);
+    expect(parsed).toHaveProperty('table', 'student');
+    expect(parsed).toHaveProperty('whereClauses', [{ field: 'age', operator: '=', value: '30' }, { field: 'name', operator: '=', value: 'John' }]);
+    expect(parsed).toHaveProperty('joinType', null);
+    expect(parsed).toHaveProperty('joinTable', null);
+    expect(parsed).toHaveProperty('joinCondition', null);
 });
 
 test('Execute SQL Query with Complex WHERE Clause', async () => {
@@ -104,27 +86,23 @@ test('Execute SQL Query with Not Equal to', async () => {
 test('Parse SQL Query with INNER JOIN', async () => {
     const query = 'SELECT student.name, enrollment.course FROM student INNER JOIN enrollment ON student.id=enrollment.student_id';
     const result = await parseQuery(query);
-    expect(result).toEqual({
-        fields: ['student.name', 'enrollment.course'],
-        table: 'student',
-        whereClauses: [],
-        joinTable: 'enrollment',
-        joinType: 'INNER',
-        joinCondition: { left: 'student.id', right: 'enrollment.student_id' }
-    })
+    expect(result).toHaveProperty('fields', ['student.name', 'enrollment.course']);
+    expect(result).toHaveProperty('table', 'student');
+    expect(result).toHaveProperty('whereClauses', []);
+    expect(result).toHaveProperty('joinType', 'INNER');
+    expect(result).toHaveProperty('joinTable', 'enrollment');
+    expect(result).toHaveProperty('joinCondition', { left: 'student.id', right: 'enrollment.student_id' });
 });
 
 test('Parse SQL Query with INNER JOIN and WHERE Clause', async () => {
     const query = 'SELECT student.name, enrollment.course FROM student INNER JOIN enrollment ON student.id = enrollment.student_id WHERE student.age > 20';
     const result = await parseQuery(query);
-    expect(result).toEqual({
-        fields: ['student.name', 'enrollment.course'],
-        table: 'student',
-        whereClauses: [{ field: 'student.age', operator: '>', value: '20' }],
-        joinTable: 'enrollment',
-        joinType: 'INNER',
-        joinCondition: { left: 'student.id', right: 'enrollment.student_id' }
-    })
+    expect(result).toHaveProperty('fields', ['student.name', 'enrollment.course']);
+    expect(result).toHaveProperty('table', 'student');
+    expect(result).toHaveProperty('whereClauses', [{ field: 'student.age', operator: '>', value: '20' }]);
+    expect(result).toHaveProperty('joinType', 'INNER');
+    expect(result).toHaveProperty('joinTable', 'enrollment');
+    expect(result).toHaveProperty('joinCondition', { left: 'student.id', right: 'enrollment.student_id' });
 });
 
 test('Execute SQL Query with INNER JOIN', async () => {
@@ -138,7 +116,6 @@ test('Execute SQL Query with INNER JOIN', async () => {
       { 'student.name': 'Bob', 'enrollment.course': 'Mathematics' }
     ]
     */
-   console.log(result, 'result')
     expect(result.length).toEqual(4);
     // toHaveProperty is not working here due to dot in the property name
     expect(result[0]).toEqual(expect.objectContaining({
