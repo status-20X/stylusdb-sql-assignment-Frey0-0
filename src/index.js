@@ -5,13 +5,6 @@ const {
   performLeftJoin,
   performRightJoin,
 } = require("./joins");
-const {
-  calculateMax,
-  calculateMin,
-  calculateSum,
-  calculateAvg,
-  calculateCount,
-} = require("./aggregate");
 async function executeSELECTQuery(query) {
   try {
     const {
@@ -207,7 +200,13 @@ function evaluateCondition(row, clause) {
     ? actualValue
     : parseFloat(actualValue);
   const convertedValue = isNaN(value) ? value : parseFloat(value);
-
+  if (operator === "LIKE") {
+    // Transform SQL LIKE pattern to JavaScript RegExp pattern
+    const regexPattern =
+      "^" + value.replace(/%/g, ".*").replace(/_/g, ".") + "$";
+    const regex = new RegExp(regexPattern, "i"); // 'i' for case-insensitive matching
+    return regex.test(row[field]);
+  }
   // Perform the comparison based on the operator
   switch (operator) {
     case "=":
