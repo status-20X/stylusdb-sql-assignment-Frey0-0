@@ -173,8 +173,6 @@ async function executeSELECTQuery(query) {
         return selectedRow;
       });
 
-      // console.log("CP-2", orderedResults)
-
       // Remove duplicates if specified
       let distinctResults = finalResults;
       if (isDistinct) {
@@ -227,38 +225,6 @@ function evaluateCondition(row, clause) {
     default:
       throw new Error(`Unsupported operator: ${operator}`);
   }
-}
-
-function applyAggregateFunctions(groupedData, aggregateFunctions) {
-  const result = {};
-
-  aggregateFunctions.forEach((aggregate) => {
-    const [functionName, field] = aggregate
-      .split("(")[1]
-      .split(")")[0]
-      .split(",");
-    switch (functionName.toUpperCase()) {
-      case "COUNT":
-        result[`COUNT(${field})`] = calculateCount(groupedData);
-        break;
-      case "SUM":
-        result[`SUM(${field})`] = calculateSum(groupedData, field);
-        break;
-      case "AVG":
-        result[`AVG(${field})`] = calculateAvg(groupedData, field);
-        break;
-      case "MIN":
-        result[`MIN(${field})`] = calculateMin(groupedData, field);
-        break;
-      case "MAX":
-        result[`MAX(${field})`] = calculateMax(groupedData, field);
-        break;
-      default:
-        throw new Error(`Unsupported aggregate function: ${functionName}`);
-    }
-  });
-
-  return result;
 }
 
 function applyGroupBy(data, groupByFields, aggregateFunctions) {
